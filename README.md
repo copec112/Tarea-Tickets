@@ -22,7 +22,7 @@ Este proyecto implementa un sistema de gestión de tickets de soporte técnico e
 - 🧾 **Mostrar todos los tickets**: Lista todos los tickets organizados por prioridad.
 
 
-## posbles fallas
+## posibles fallas
 no se asegura, que el ID de la persona solo sea numerico, si este pone su nombre, habira fallas.
 errores ortograficos, esto se debe, que el programa no deja colocar tildes.
 ## Compilación
@@ -31,12 +31,11 @@ Para compilar el programa, usa los siguiente comando (desde el directorio donde 
 
 ````bash
 gcc -o ticket_system main.c list.c -std=c99
-````
-````para despues 
+
 ./ticket_system
 
 ````
-ejemplo del programa
+## ejemplo del uso del programa
 
 ========================================
          Sistema de Tickets

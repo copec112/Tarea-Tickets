@@ -30,7 +30,8 @@ errores ortograficos, esto se debe, que el programa no deja colocar tildes.
 Para compilar el programa, usa los siguiente comando (desde el directorio donde está el código fuente) :
 
 ````bash
-gcc -o ticket_system main.c list.c -std=c99
+gcc -o ticket_system main.c -std=c99
+
 ````
 para luego ocupar
 ````

@@ -31,7 +31,9 @@ Para compilar el programa, usa los siguiente comando (desde el directorio donde 
 
 ````bash
 gcc -o ticket_system main.c list.c -std=c99
-
+````
+para luego ocupar
+````
 ./ticket_system
 
 ````

@@ -21,11 +21,74 @@ Este proyecto implementa un sistema de gestión de tickets de soporte técnico e
 
 - 🧾 **Mostrar todos los tickets**: Lista todos los tickets organizados por prioridad.
 
-- ✏️ **Modificar un ticket**: Permite cambiar la información de un ticket específico (nombre, descripción o prioridad).
 
+## posbles fallas
+no se asegura, que el ID de la persona solo sea numerico, si este pone su nombre, habira fallas.
+errores ortograficos, esto se debe, que el programa no deja colocar tildes.
 ## Compilación
 
-Para compilar el programa, usa el siguiente comando (desde el directorio donde está el código fuente):
+Para compilar el programa, usa los siguiente comando (desde el directorio donde está el código fuente) :
 
-```bash
+````bash
 gcc -o ticket_system main.c list.c -std=c99
+````
+````para despues 
+./ticket_system
+
+````
+ejemplo del programa
+
+========================================
+         Sistema de Tickets
+========================================
+1) Registrar ticket
+2) Mostrar lista de tickets
+3) procesar ticket
+4) buscar ticket por ID
+5) Salir
+Ingrese su opcion: 1
+Registrar nuevo ticket
+Ingrese su ID: 234
+Ingrese descripcion: Hola, no se como ocupar hithub 
+Ingrese la prioridad del ticket(1 = Alto, 2 = Medio, 3 = Bajo): 1
+Ticket registrado correctamente.
+
+Presione ENTER para continuar...
+========================================
+         Sistema de Tickets
+========================================
+1) Registrar ticket
+2) Mostrar lista de tickets
+3) procesar ticket
+4) buscar ticket por ID
+5) Salir
+Ingrese su opcion: 3
+Ticket procesado: ID: 234, Descripcion: Hola, no se como ocupar hithub , Prioridad: 1
+
+Presione ENTER para continuar...
+========================================
+         Sistema de Tickets
+========================================
+1) Registrar ticket
+2) Mostrar lista de tickets
+3) procesar ticket
+4) buscar ticket por ID
+5) Salir
+Ingrese su opcion: 2
+No hay tickets registrados de prioridad Alta.
+No hay tickets registrados de prioridad Media.
+No hay tickets registrados de prioridad Baja.
+
+Presione ENTER para continuar...
+========================================
+         Sistema de Tickets
+========================================
+1) Registrar ticket
+2) Mostrar lista de tickets
+3) procesar ticket
+4) buscar ticket por ID
+5) Salir
+Ingrese su opcion: 5
+Saliendo del sistema de tickets...
+
+Presione ENTER para continuar...

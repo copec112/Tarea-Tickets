@@ -1,0 +1,414 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+
+typedef struct Node {
+    void *data; // Puntero a los datos del nodo
+    struct Node *prev; // Añadido para mantener la referencia al nodo anterior
+    struct Node *next; // Añadido para mantener la referencia al siguiente nodo
+  } Node;
+  
+  struct List {
+    Node *head;
+    Node *tail;
+    Node *current;
+    int size;
+  };
+  
+  typedef List List;
+
+  typedef struct {
+    int id;
+    char descripcion[400];
+    int prioridad;  // 1=Alto, 2=Medio, 3=Bajo
+    char hora[6];   // formato HH:MM
+  } Ticket;
+  
+List *crearList() {
+    List *newList = (List *)malloc(sizeof(List));
+    if (newList == NULL) {
+      return NULL; // Fallo en la asignación de memoria
+    }
+    newList->head = NULL;
+    newList->tail = NULL;
+    newList->current = NULL;
+    newList->size = 0;
+    return newList;
+  }
+  
+void *first(List *L) {
+    if (L == NULL || L->head == NULL) {
+      return NULL; // Lista vacía o no inicializada
+    }
+    L->current = L->head;
+    return L->current->data;
+  }
+  
+void *next(List *L) {
+    if (L == NULL || L->current == NULL || L->current->next == NULL) {
+      return NULL; // Lista vacía, no inicializada o no hay más elementos
+    }
+    L->current = L->current->next;
+    return L->current->data;
+  }
+  
+void pushFront(List *L, void *data) {
+    if (L == NULL) {
+      return; // Lista no inicializada
+    }
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL) {
+      return; // Fallo en la asignación de memoria
+    }
+    newNode->data = data;
+    newNode->next = L->head;
+    L->head = newNode;
+    if (L->tail == NULL) { // Si la lista estaba vacía
+      L->tail = newNode;
+    }
+    L->size++;
+  }
+  
+void pushBack(List *L, void *data) {
+    if (L == NULL) {
+      return; // Lista no inicializada
+    }
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL) {
+      return; // Fallo en la asignación de memoria
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    if (L->tail == NULL) { // Si la lista está vacía
+      L->head = newNode;
+      L->tail = newNode;
+    } else {
+      L->tail->next = newNode;
+      L->tail = newNode;
+    }
+    L->size++;
+  }
+  
+void pushCurrent(List *L, void *data) {
+    if (L == NULL || L->current == NULL) {
+      return; // Lista no inicializada o current no está definido
+    }
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL) {
+      return; // Fallo en la asignación de memoria
+    }
+    newNode->data = data;
+    newNode->next = L->current->next;
+    L->current->next = newNode;
+    if (L->current == L->tail) {
+      L->tail = newNode; // Actualizar tail si se inserta al final
+    }
+    L->size++;
+  }
+  
+void *popFront(List *L) {
+    if (L == NULL || L->head == NULL) {
+      return NULL; // Lista vacía o no inicializada
+    }
+    Node *temp = L->head;
+    L->head = L->head->next;
+    if (L->head == NULL) {
+      L->tail = NULL; // La lista ahora está vacía
+    }
+    void *data = temp->data;
+    free(temp);
+    L->size--;
+    return data;
+  }
+  
+void *popBack(List *L) {
+    if (L == NULL || L->head == NULL) {
+      return NULL; // Lista vacía o no inicializada
+    }
+    if (L->head == L->tail) { // Solo un elemento en la lista
+      return popFront(L);
+    }
+    Node *current = L->head;
+    while (current->next != L->tail) {
+      current = current->next;
+    }
+    void *data = L->tail->data;
+    free(L->tail);
+    current->next = NULL;
+    L->tail = current;
+    L->size--;
+    return data;
+  }
+  
+void *popCurrent(List *L) {
+    if (L == NULL || L->current == NULL) {
+      return NULL; // Lista no inicializada o current no definido
+    }
+    if (L->current == L->head) {
+      return popFront(L);
+    }
+    Node *temp = L->head;
+    while (temp != NULL && temp->next != L->current) {
+      temp = temp->next;
+    }
+  
+    temp->next = L->current->next;
+    if (L->current == L->tail) {
+      L->tail = temp; // Actualizar tail si se elimina el último elemento
+    }
+    void *data = L->current->data;
+    free(L->current);
+    L->current = temp->next;
+    L->size--;
+    return data;
+  }
+  
+void clean(List *L) {
+    if (L == NULL) {
+      return; // Lista no inicializada
+    }
+    Node *current = L->head;
+    Node *next;
+    while (current != NULL) {
+      next = current->next;
+      free(current);
+      current = next;
+    }
+    L->head = NULL;
+    L->tail = NULL;
+    L->current = NULL;
+    L->size = 0;
+  }
+
+
+void presioneTeclaParaContinuar() {
+    printf("\nPresione ENTER para continuar...");
+    getchar(); // Limpia el '\n' pendiente
+    getchar(); // Espera ENTER
+  }
+  
+void mostrarMenuPrincipal() 
+  {
+    puts("========================================");
+    puts("         Sistema de Tickets");
+    puts("========================================");
+  
+    puts("1) Registrar ticket");
+    puts("2) Mostrar lista de tickets");
+    puts("3) Buscar ticket por ID");
+    puts("4) procesar ticket");
+    puts("5) Salir");
+  }
+  
+void registrar_ticket(List *tickets1, List *tickets2, List *tickets3) {
+  printf("Registrar nuevo ticket\n");
+  
+  Ticket *nuevo = malloc(sizeof(Ticket));
+  if (nuevo == NULL) {
+    printf("Error al asignar memoria para el ticket.\n");
+    return;
+  }
+  
+  printf("Ingrese su ID: ");
+  scanf("%d", &nuevo->id);
+  getchar(); // limpiar newline
+  
+  printf("Ingrese descripción: ");
+  fgets(nuevo->descripcion, sizeof(nuevo->descripcion), stdin);
+  nuevo->descripcion[strcspn(nuevo->descripcion, "\n")] = '\0';
+  
+  printf("Ingrese la prioridad del ticket(1 = Alto, 2 = Medio, 3 = Bajo): ");
+  scanf("%d", &nuevo->prioridad);
+
+  if(nuevo->prioridad == 1) pushBack(tickets1, nuevo);
+  
+  if(nuevo->prioridad == 2)pushBack(tickets2, nuevo);
+
+  if(nuevo->prioridad == 3)pushBack(tickets3, nuevo);
+  
+  printf("Ticket registrado correctamente.\n");
+}
+
+void mostrar_lista_tickets(List *tickets1, List *tickets2, List *tickets3) {
+    if (tickets1   == NULL || tickets1->head == NULL) 
+    {
+      printf("No hay tickets registrados de prioridad Alta.\n");
+    }
+    if (tickets2   == NULL || tickets2->head == NULL) 
+    {
+      printf("No hay tickets registrados de prioridad Media.\n");
+    }
+    if (tickets3   == NULL || tickets3->head == NULL) 
+    {
+      printf("No hay tickets registrados de prioridad Baja.\n");
+    }
+    if (tickets1 == NULL && tickets2 == NULL && tickets3 == NULL) 
+    {
+      printf("No hay tickets registrados.\n");
+      return;
+    }
+    
+    if (tickets1 != NULL)
+    {
+      printf("Lista de tickets de prioridad Alta:\n");
+      Node *current = tickets1->head;
+      while (current != NULL) {
+        Ticket *ticket1 = (Ticket *)current->data;
+        printf("ID: %d, Descripción: %s, Prioridad: %d\n", ticket1->id, ticket1->descripcion, ticket1->prioridad);
+        current = current->next;
+      }
+    }
+    if (tickets2 != NULL)
+    {
+      printf("Lista de tickets de prioridad Media:\n");
+      Node *current = tickets2->head;
+      while (current != NULL) {
+        Ticket *ticket2 = (Ticket *)current->data;
+        printf("ID: %d, Descripción: %s, Prioridad: %d\n", ticket2->id, ticket2->descripcion, ticket2->prioridad);
+        current = current->next;
+      }
+    }
+    if (tickets3 != NULL)
+    {
+      printf("Lista de tickets de prioridad Baja:\n");
+      Node *current = tickets3->head;
+      while (current != NULL) {
+        Ticket *ticket3 = (Ticket *)current->data;
+        printf("ID: %d, Descripción: %s, Prioridad: %d\n", ticket3->id, ticket3->descripcion, ticket3->prioridad);
+        current = current->next;
+      }
+    }
+  }
+
+void procesar_ticket(List *tickets1, List *tickets2, List *tickets3) {
+    if (tickets1->head == NULL && tickets2->head == NULL && tickets3->head == NULL) {
+      printf("No hay tickets para procesar.\n");
+      return;
+    }
+  
+    Ticket *ticket = NULL;
+    if (tickets1->head != NULL) {
+      ticket = (Ticket *)popFront(tickets1);
+    } else if (tickets2->head != NULL) {
+      ticket = (Ticket *)popFront(tickets2);
+    } else if (tickets3->head != NULL) {
+      ticket = (Ticket *)popFront(tickets3);
+    }
+  
+    if (ticket != NULL) {
+      printf("Ticket procesado: ID: %d, Descripción: %s, Prioridad: %d\n", ticket->id, ticket->descripcion, ticket->prioridad);
+      free(ticket); // Liberar memoria del ticket procesado
+    }
+  }
+
+void buscar_ticket_por_ID(List *tickets1, List *tickets2, List *tickets3) {
+  int id;
+  printf("Ingrese el ID del ticket a buscar: ");
+  scanf("%d", &id);
+  
+  Ticket *ticket = NULL;
+  Node *current = tickets1->head;
+  while (current != NULL) 
+  {
+    Ticket *t = (Ticket *)current->data;
+    if (t->id == id) 
+    {
+      ticket = t;
+      break;
+    }
+    current = current->next;
+  }
+  
+  if (ticket == NULL) 
+  {
+    current = tickets2->head;
+    while (current != NULL) 
+    {
+      Ticket *t = (Ticket *)current->data;
+      if (t->id == id) 
+      {
+        ticket = t;
+        break;
+      }
+      current = current->next;
+    }
+  }
+  
+  if (ticket == NULL) 
+  {
+    current = tickets3->head;
+    while (current != NULL) {
+      Ticket *t = (Ticket *)current->data;
+      if (t->id == id) {
+        ticket = t;
+        break;
+      }
+      current = current->next;
+    }
+  }
+  
+  if (ticket != NULL) 
+  {
+    printf("Ticket encontrado: ID: %d, Descripción: %s, Prioridad: ", ticket->id, ticket->descripcion);
+    if (ticket->prioridad == 1) 
+    {
+      printf("Alta\n");
+    } else if (ticket->prioridad == 2) 
+    {
+      printf("Media\n");
+    } else if (ticket->prioridad == 3) 
+    {
+      printf("Baja\n");
+    }
+  } 
+  else printf("No se encontró el ticket con ID: %d\n", id);
+}
+
+
+
+  int main() {
+    char opcion;
+    List *tickets1 = crearList(); // lista doblemente enlazada para tickets
+    List *tickets2 = crearList();
+    List *tickets3 = crearList();
+  
+    do {
+      mostrarMenuPrincipal();
+      printf("Ingrese su opción: ");
+      scanf(" %c", &opcion);
+  
+      switch (opcion) {
+        case '1':
+          registrar_ticket(tickets1, tickets2, tickets3);
+          break;
+        case '2':
+          mostrar_lista_tickets(tickets1, tickets2, tickets3);
+          break;
+        case '3':
+          procesar_ticket(tickets1, tickets2, tickets3);
+          break;
+        case '4':
+          buscar_ticket_por_ID(tickets1, tickets2, tickets3);
+          break;
+        case '5':
+          puts("Saliendo del sistema de tickets...");
+          break;
+        default:
+          puts("Opción no válida. Por favor, intente de nuevo.");
+      }
+  
+      presioneTeclaParaContinuar();
+  
+    } while (opcion != '5');
+  
+    clean(tickets1); 
+    clean(tickets2);
+    clean(tickets3); // liberar nodos
+    free(tickets1); 
+    free(tickets2);
+    free(tickets3);   // liberar la lista
+  
+    return 0;
+  }
